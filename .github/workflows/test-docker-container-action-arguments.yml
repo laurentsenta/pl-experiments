@@ -1,0 +1,22 @@
+name: Test
+on:
+  push:
+  pull_request:
+jobs:
+  test-build-args:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - id: github
+        uses: laurentsenta/docker-container-action/.github/actions/github@main
+      - name: build the container and run it
+        uses: laurentsenta/docker-container-action@main
+        with:
+          repository: ${{ steps.github.outputs.action_repository }}
+          ref: ${{ steps.github.outputs.action_sha || steps.github.outputs.action_ref }}
+          dockerfile: tests/test-docker-container-action.dockerfile
+          args: --arg1 --arg2 --arg3
+          build-args: |
+            ARG_1:hello
+            ARG_2:foo
+            ARG_3:world
