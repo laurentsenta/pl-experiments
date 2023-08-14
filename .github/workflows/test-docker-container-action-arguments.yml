@@ -7,6 +7,26 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
+      - id: transform-build-args
+        # this steps reproduces the build-args used in https://github.com/docker/build-push-action#customizing
+        env:
+          BUILD_ARGS: |
+            ARG_1:hello
+            ARG_2:foo
+            ARG_3:world
+        run: |
+          build_args=""
+          IFS=$'\n'
+          for line in "${BUILD_ARGS}"; do
+            line_with_equals=${line/:/=}
+            echo "line: $line"
+            echo "line_with_equals: $line_with_equals"
+            
+            build_args="$build_args --build-arg ${line_with_equals}"
+          done
+          echo "found: $build_args"
+          echo "build-args=$build_args" >> $GITHUB_OUTPUT
+        shell: bash
       - id: github
         uses: laurentsenta/docker-container-action/.github/actions/github@main
       - name: build the container and run it
