@@ -16,14 +16,19 @@ jobs:
             ARG_3:world
         run: |
           build_args=""
-          IFS=$'\n'
-          for line in "${BUILD_ARGS}"; do
+          while IFS= read -r line; do
             line_with_equals=${line/:/=}
             echo "line: $line"
             echo "line_with_equals: $line_with_equals"
-            
+
+            # skip empty lines (which happens with `<<<`)
+            if [[ -z "$line" ]]; then
+              continue
+            fi
+
             build_args="$build_args --build-arg ${line_with_equals}"
-          done
+          done <<< "${BUILD_ARGS}"
+
           echo "found: $build_args"
           echo "build-args=$build_args" >> $GITHUB_OUTPUT
         shell: bash
